@@ -30,6 +30,9 @@ public class GenerateAst {
 //> Control Flow logical-ast
       "Logical  : Expr left, Token operator, Expr right",
 //< Control Flow logical-ast
+// > Control Flow comma collection
+      "CommaCollection  : Expr left, Token operator, Expr right",
+//< Control Flow comma collection
 //> Classes set-ast
       "Set      : Expr object, Token name, Expr value",
 //< Classes set-ast
