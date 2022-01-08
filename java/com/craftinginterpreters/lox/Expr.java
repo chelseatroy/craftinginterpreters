@@ -12,6 +12,7 @@ abstract class Expr {
     R visitGroupingExpr(Grouping expr);
     R visitLiteralExpr(Literal expr);
     R visitLogicalExpr(Logical expr);
+    R visitCommaCollectionExpr(CommaCollection expr);
     R visitSetExpr(Set expr);
     R visitSuperExpr(Super expr);
     R visitThisExpr(This expr);
@@ -134,6 +135,24 @@ abstract class Expr {
     final Expr right;
   }
 //< expr-logical
+//> expr-commacollection
+  static class CommaCollection extends Expr {
+    CommaCollection(Expr left, Token operator, Expr right) {
+      this.left = left;
+      this.operator = operator;
+      this.right = right;
+    }
+
+    @Override
+    <R> R accept(Visitor<R> visitor) {
+      return visitor.visitCommaCollectionExpr(this);
+    }
+
+    final Expr left;
+    final Token operator;
+    final Expr right;
+  }
+//< expr-commacollection
 //> expr-set
   static class Set extends Expr {
     Set(Expr object, Token name, Expr value) {
