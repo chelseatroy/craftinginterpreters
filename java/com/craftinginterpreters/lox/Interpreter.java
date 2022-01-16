@@ -478,7 +478,19 @@ class Interpreter implements Expr.Visitor<Object>,
     return lookUpVariable(expr.name, expr);
 //< Resolving and Binding call-look-up-variable
   }
-//> Resolving and Binding look-up-variable
+
+  @Override
+  public Object visitTernaryExpr(Expr.Ternary expr) {
+    Object condition = evaluate(expr.condition);
+
+    if (isTruthy(condition)) {
+      return evaluate(expr.trueLeg);
+    } else {
+      return evaluate(expr.falseLeg);
+    }
+  }
+
+  //> Resolving and Binding look-up-variable
   private Object lookUpVariable(Token name, Expr expr) {
     Integer distance = locals.get(expr);
     if (distance != null) {
