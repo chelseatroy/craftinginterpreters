@@ -1,2 +1,2 @@
-// [line 2] Error at 'var': Expect expression.
+// [line 2] Error at 'foo': You can't declare a variable in a block.
 while (true) var foo;

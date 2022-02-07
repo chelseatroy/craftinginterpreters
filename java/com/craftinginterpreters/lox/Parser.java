@@ -57,8 +57,15 @@ class Parser {
     return equality();
 */
     if (match(FUN)) {
-      String noFunHereMessage = "You can't declare a function in a block.";
-      Expr expr = new Expr.ErrorProduction(peek(), noFunHereMessage);
+      Expr expr = new Expr.ErrorProduction(peek(), "You can't define a function in a block.");
+      this.errorProductions.add((Expr.ErrorProduction) expr);
+    }
+    if (match(CLASS)) {
+      Expr expr = new Expr.ErrorProduction(peek(), "You can't define a class in a block.");
+      this.errorProductions.add((Expr.ErrorProduction) expr);
+    }
+    if (match(VAR)) {
+      Expr expr = new Expr.ErrorProduction(peek(), "You can't declare a variable in a block.");
       this.errorProductions.add((Expr.ErrorProduction) expr);
     }
 //> Statements and State expression
@@ -204,6 +211,19 @@ class Parser {
     Stmt thenBranch = statement();
     Stmt elseBranch = null;
     if (match(ELSE)) {
+      if (match(FUN)) {
+        Expr expr = new Expr.ErrorProduction(peek(), "You can't define a function in a block.");
+        this.errorProductions.add((Expr.ErrorProduction) expr);
+      }
+      if (match(CLASS)) {
+        Expr expr = new Expr.ErrorProduction(peek(), "You can't define a class in a block.");
+        this.errorProductions.add((Expr.ErrorProduction) expr);
+      }
+      if (match(VAR)) {
+        Expr expr = new Expr.ErrorProduction(peek(), "You can't declare a variable in a block.");
+        this.errorProductions.add((Expr.ErrorProduction) expr);
+      }
+
       elseBranch = statement();
     }
 
