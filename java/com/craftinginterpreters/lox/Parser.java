@@ -237,6 +237,11 @@ class Parser {
 //> Statements and State parse-print-statement
   private Stmt printStatement() {
     Expr value = expression();
+
+    if (value instanceof Expr.Nothing) {
+      Expr expr = new Expr.ErrorProduction(peek(), "Ain't nothing to print.");
+      this.errorProductions.add((Expr.ErrorProduction) expr);
+    }
     consume(SEMICOLON, "Expect ';' after value.");
     return new Stmt.Print(value);
   }
@@ -406,12 +411,11 @@ class Parser {
   private Expr term() {
     Expr expr = factor();
 
-    if (expr instanceof Expr.Nothing) {
-          String leftOperandMissingMessage = "Binary operators must have a left and right operand.";
-          expr = new Expr.ErrorProduction(peek(), leftOperandMissingMessage);
-          this.errorProductions.add((Expr.ErrorProduction) expr);
-    }
     while (match(MINUS, PLUS)) {
+      if (expr instanceof Expr.Nothing) {
+        expr = new Expr.ErrorProduction(previous(), "Binary operators must have a left and right operand.");
+        this.errorProductions.add((Expr.ErrorProduction) expr);
+      }
       Token operator = previous();
       Expr right = factor();
       expr = new Expr.Binary(expr, operator, right);
