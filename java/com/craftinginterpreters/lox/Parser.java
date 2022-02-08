@@ -500,6 +500,11 @@ class Parser {
     if (match(TRUE)) return new Expr.Literal(true);
     if (match(NIL)) return new Expr.Literal(null);
 
+    if (match(DOT)) {
+      Expr expr = new Expr.ErrorProduction(previous(), "Values cannot begin with a dot.");
+      this.errorProductions.add((Expr.ErrorProduction) expr);
+    }
+
     if (match(NUMBER, STRING)) {
       return new Expr.Literal(previous().literal);
     }
