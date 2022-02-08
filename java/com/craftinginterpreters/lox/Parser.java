@@ -68,6 +68,10 @@ class Parser {
       Expr expr = new Expr.ErrorProduction(peek(), "You can't declare a variable in a block.");
       this.errorProductions.add((Expr.ErrorProduction) expr);
     }
+    if (match(LEFT_BRACE)) {
+      Expr expr = new Expr.ErrorProduction(peek(), "You can't start a block in a bounded scope. Did you mean to define a variable?");
+      this.errorProductions.add((Expr.ErrorProduction) expr);
+    }
 //> Statements and State expression
     return assignment();
 //< Statements and State expression
