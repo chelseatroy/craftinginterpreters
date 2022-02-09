@@ -386,6 +386,11 @@ class Parser {
     Expr expr = comparison();
 
     while (match(BANG_EQUAL, EQUAL_EQUAL)) {
+      if (expr instanceof Expr.Nothing) {
+        expr = new Expr.ErrorProduction(previous(), "Comparison operators must have a left and right operand.");
+        this.errorProductions.add((Expr.ErrorProduction) expr);
+      }
+
       Token operator = previous();
       Expr right = comparison();
       expr = new Expr.Binary(expr, operator, right);
@@ -399,6 +404,11 @@ class Parser {
     Expr expr = term();
 
     while (match(GREATER, GREATER_EQUAL, LESS, LESS_EQUAL)) {
+      if (expr instanceof Expr.Nothing) {
+        expr = new Expr.ErrorProduction(previous(), "Comparison operators must have a left and right operand.");
+        this.errorProductions.add((Expr.ErrorProduction) expr);
+      }
+
       Token operator = previous();
       Expr right = term();
       expr = new Expr.Binary(expr, operator, right);
@@ -429,6 +439,11 @@ class Parser {
     Expr expr = unary();
 
     while (match(SLASH, STAR)) {
+      if (expr instanceof Expr.Nothing) {
+        expr = new Expr.ErrorProduction(previous(), "Binary operators must have a left and right operand.");
+        this.errorProductions.add((Expr.ErrorProduction) expr);
+      }
+
       Token operator = previous();
       Expr right = unary();
       expr = new Expr.Binary(expr, operator, right);
