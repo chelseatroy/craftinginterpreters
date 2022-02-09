@@ -1,2 +1,2 @@
-// [line 2] Error at ';': Ain't nothing to print.
+// [line 2] Error at 'print': Ain't nothing to print.
 print;

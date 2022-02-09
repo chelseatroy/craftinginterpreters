@@ -237,11 +237,8 @@ class Parser {
 //> Statements and State parse-print-statement
   private Stmt printStatement() {
     Expr value = expression();
+    value = checkForMissingExpression(value, "Ain't nothing to print.");
 
-    if (value instanceof Expr.Nothing) {
-      Expr expr = new Expr.ErrorProduction(peek(), "Ain't nothing to print.");
-      this.errorProductions.add((Expr.ErrorProduction) expr);
-    }
     consume(SEMICOLON, "Expect ';' after value.");
     return new Stmt.Print(value);
   }
@@ -386,10 +383,7 @@ class Parser {
     Expr expr = comparison();
 
     while (match(BANG_EQUAL, EQUAL_EQUAL)) {
-      if (expr instanceof Expr.Nothing) {
-        expr = new Expr.ErrorProduction(previous(), "Comparison operators must have a left and right operand.");
-        this.errorProductions.add((Expr.ErrorProduction) expr);
-      }
+      expr = checkForMissingExpression(expr, "Comparison operators must have a left and right operand.");
 
       Token operator = previous();
       Expr right = comparison();
@@ -398,16 +392,22 @@ class Parser {
 
     return expr;
   }
-//< equality
+
+  private Expr checkForMissingExpression(Expr expr, String errorMessage) {
+    if (expr instanceof Expr.Nothing) {
+      expr = new Expr.ErrorProduction(previous(), errorMessage);
+      this.errorProductions.add((Expr.ErrorProduction) expr);
+    }
+    return expr;
+  }
+
+  //< equality
 //> comparison
   private Expr comparison() {
     Expr expr = term();
 
     while (match(GREATER, GREATER_EQUAL, LESS, LESS_EQUAL)) {
-      if (expr instanceof Expr.Nothing) {
-        expr = new Expr.ErrorProduction(previous(), "Comparison operators must have a left and right operand.");
-        this.errorProductions.add((Expr.ErrorProduction) expr);
-      }
+      expr = checkForMissingExpression(expr, "Comparison operators must have a left and right operand.");
 
       Token operator = previous();
       Expr right = term();
@@ -422,10 +422,7 @@ class Parser {
     Expr expr = factor();
 
     while (match(MINUS, PLUS)) {
-      if (expr instanceof Expr.Nothing) {
-        expr = new Expr.ErrorProduction(previous(), "Binary operators must have a left and right operand.");
-        this.errorProductions.add((Expr.ErrorProduction) expr);
-      }
+      expr = checkForMissingExpression(expr, "Binary operators must have a left and right operand.");
       Token operator = previous();
       Expr right = factor();
       expr = new Expr.Binary(expr, operator, right);
@@ -439,10 +436,7 @@ class Parser {
     Expr expr = unary();
 
     while (match(SLASH, STAR)) {
-      if (expr instanceof Expr.Nothing) {
-        expr = new Expr.ErrorProduction(previous(), "Binary operators must have a left and right operand.");
-        this.errorProductions.add((Expr.ErrorProduction) expr);
-      }
+      expr = checkForMissingExpression(expr, "Binary operators must have a left and right operand.");
 
       Token operator = previous();
       Expr right = unary();
