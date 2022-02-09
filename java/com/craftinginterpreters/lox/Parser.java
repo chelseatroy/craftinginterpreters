@@ -56,22 +56,10 @@ class Parser {
 /* Parsing Expressions expression < Statements and State expression
     return equality();
 */
-    if (match(FUN)) {
-      Expr expr = new Expr.ErrorProduction(peek(), "You can't define a function in a block.");
-      this.errorProductions.add((Expr.ErrorProduction) expr);
-    }
-    if (match(CLASS)) {
-      Expr expr = new Expr.ErrorProduction(peek(), "You can't define a class in a block.");
-      this.errorProductions.add((Expr.ErrorProduction) expr);
-    }
-    if (match(VAR)) {
-      Expr expr = new Expr.ErrorProduction(peek(), "You can't declare a variable in a block.");
-      this.errorProductions.add((Expr.ErrorProduction) expr);
-    }
-    if (match(LEFT_BRACE)) {
-      Expr expr = new Expr.ErrorProduction(peek(), "You can't start a block in a bounded scope. Did you mean to define a variable?");
-      this.errorProductions.add((Expr.ErrorProduction) expr);
-    }
+    checkForInvalidToken(FUN, peek(), "You can't define a function in a block.");
+    checkForInvalidToken(CLASS, peek(), "You can't define a class in a block.");
+    checkForInvalidToken(VAR, peek(), "You can't declare a variable in a block.");
+    checkForInvalidToken(LEFT_BRACE, peek(), "You can't start a block in a bounded scope. Did you mean to define a variable?");
 //> Statements and State expression
     return assignment();
 //< Statements and State expression
@@ -215,18 +203,9 @@ class Parser {
     Stmt thenBranch = statement();
     Stmt elseBranch = null;
     if (match(ELSE)) {
-      if (match(FUN)) {
-        Expr expr = new Expr.ErrorProduction(peek(), "You can't define a function in a block.");
-        this.errorProductions.add((Expr.ErrorProduction) expr);
-      }
-      if (match(CLASS)) {
-        Expr expr = new Expr.ErrorProduction(peek(), "You can't define a class in a block.");
-        this.errorProductions.add((Expr.ErrorProduction) expr);
-      }
-      if (match(VAR)) {
-        Expr expr = new Expr.ErrorProduction(peek(), "You can't declare a variable in a block.");
-        this.errorProductions.add((Expr.ErrorProduction) expr);
-      }
+      checkForInvalidToken(FUN, peek(), "You can't define a function in a block.");
+      checkForInvalidToken(CLASS, peek(), "You can't define a class in a block.");
+      checkForInvalidToken(VAR, peek(), "You can't declare a variable in a block.");
 
       elseBranch = statement();
     }
@@ -509,10 +488,7 @@ class Parser {
     if (match(TRUE)) return new Expr.Literal(true);
     if (match(NIL)) return new Expr.Literal(null);
 
-    if (match(DOT)) {
-      Expr expr = new Expr.ErrorProduction(previous(), "Values cannot begin with a dot.");
-      this.errorProductions.add((Expr.ErrorProduction) expr);
-    }
+    checkForInvalidToken(DOT, peek(), "Values cannot begin with a dot.");
 
     if (match(NUMBER, STRING)) {
       return new Expr.Literal(previous().literal);
@@ -547,7 +523,15 @@ class Parser {
     return new Expr.Nothing("Nothing, there's nothing here, nothing");
 //< primary-error
   }
-//< primary
+
+  private void checkForInvalidToken(TokenType tokenType, Token previous, String message) {
+    if (match(tokenType)) {
+      Expr expr = new Expr.ErrorProduction(previous, message);
+      this.errorProductions.add((Expr.ErrorProduction) expr);
+    }
+  }
+
+  //< primary
 //> match
   private boolean match(TokenType... types) {
     for (TokenType type : types) {
