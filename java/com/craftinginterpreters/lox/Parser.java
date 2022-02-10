@@ -13,7 +13,7 @@ import static com.craftinginterpreters.lox.TokenType.*;
 
 class Parser {
 //> parse-error
-  private static class ParseError extends RuntimeException {}
+  private static class UnhandledParseError extends RuntimeException {}
   private static class HandledParseError {
     HandledParseError(Token errorPoint, String message) {
       this.errorPoint = errorPoint;
@@ -85,7 +85,7 @@ class Parser {
       if (match(VAR)) return varDeclaration();
 
       return statement();
-    } catch (ParseError error) {
+    } catch (UnhandledParseError error) {
       synchronize();
       return null;
     }
@@ -587,9 +587,9 @@ class Parser {
   }
 //< utils
 //> error
-  private ParseError error(Token token, String message) {
+  private UnhandledParseError error(Token token, String message) {
     Lox.error(token, message);
-    return new ParseError();
+    return new UnhandledParseError();
   }
 //< error
 //> synchronize
