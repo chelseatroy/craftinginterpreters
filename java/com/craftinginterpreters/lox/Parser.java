@@ -374,14 +374,6 @@ class Parser {
     return expr;
   }
 
-  private Expr checkForMissingExpression(Expr expr, String errorMessage) {
-    if (expr instanceof Expr.Nothing) {
-      expr = new Expr.ErrorProduction(previous(), errorMessage);
-      this.errorProductions.add((Expr.ErrorProduction) expr);
-    }
-    return expr;
-  }
-
   //< equality
 //> comparison
   private Expr comparison() {
@@ -524,6 +516,14 @@ class Parser {
 //> primary-error
     return new Expr.Nothing("Nothing, there's nothing here, nothing");
 //< primary-error
+  }
+
+  private Expr checkForMissingExpression(Expr expr, String errorMessage) {
+    if (expr instanceof Expr.Nothing) {
+      expr = new Expr.ErrorProduction(previous(), errorMessage);
+      this.errorProductions.add((Expr.ErrorProduction) expr);
+    }
+    return expr;
   }
 
   private void checkForInvalidToken(TokenType tokenType, Token previous, String message) {
