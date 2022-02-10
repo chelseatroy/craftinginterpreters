@@ -1,0 +1,2 @@
+// [line 2] Error at 'or': Logical operators must have a left and right operand.
+or 456;

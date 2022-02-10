@@ -336,6 +336,7 @@ class Parser {
     Expr expr = and();
 
     while (match(OR)) {
+      expr = checkForMissingExpression(expr, "Logical operators must have a left and right operand.");
       Token operator = previous();
       Expr right = and();
       expr = new Expr.Logical(expr, operator, right);
@@ -349,6 +350,7 @@ class Parser {
     Expr expr = equality();
 
     while (match(AND)) {
+      expr = checkForMissingExpression(expr, "Logical operators must have a left and right operand.");
       Token operator = previous();
       Expr right = equality();
       expr = new Expr.Logical(expr, operator, right);
