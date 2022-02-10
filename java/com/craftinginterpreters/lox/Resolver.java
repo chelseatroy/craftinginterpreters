@@ -330,11 +330,6 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
   }
 
   @Override
-  public Void visitErrorProductionExpr(Expr.ErrorProduction expr) {
-    return null;
-  }
-
-  @Override
   public Void visitNothingExpr(Expr.Nothing expr) {
     return null;
   }

@@ -17,7 +17,6 @@ abstract class Expr {
     R visitThisExpr(This expr);
     R visitUnaryExpr(Unary expr);
     R visitVariableExpr(Variable expr);
-    R visitErrorProductionExpr(ErrorProduction expr);
     R visitNothingExpr(Nothing expr);
   }
 
@@ -214,22 +213,6 @@ abstract class Expr {
     final Token name;
   }
 //< expr-variable
-//> expr-errorproduction
-  static class ErrorProduction extends Expr {
-    ErrorProduction(Token errorPoint, String message) {
-      this.errorPoint = errorPoint;
-      this.message = message;
-    }
-
-    @Override
-    <R> R accept(Visitor<R> visitor) {
-      return visitor.visitErrorProductionExpr(this);
-    }
-
-    final Token errorPoint;
-    final String message;
-  }
-//< expr-errorproduction
 //> expr-nothing
   static class Nothing extends Expr {
     Nothing(String nothing) {

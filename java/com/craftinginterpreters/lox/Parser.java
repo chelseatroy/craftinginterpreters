@@ -14,11 +14,19 @@ import static com.craftinginterpreters.lox.TokenType.*;
 class Parser {
 //> parse-error
   private static class ParseError extends RuntimeException {}
+  private static class HandledParseError {
+    HandledParseError(Token errorPoint, String message) {
+      this.errorPoint = errorPoint;
+      this.message = message;
+    }
+    final Token errorPoint;
+    final String message;
+  }
 
 //< parse-error
   private final List<Token> tokens;
   private int current = 0;
-  private List<Expr.ErrorProduction> errorProductions = new ArrayList();
+  private List<HandledParseError> handledParseErrors = new ArrayList();
 
   Parser(List<Token> tokens) {
     this.tokens = tokens;
@@ -44,7 +52,7 @@ class Parser {
 //< parse-declaration
     }
 
-    for (Expr.ErrorProduction errPdxn: this.errorProductions) {
+    for (HandledParseError errPdxn: this.handledParseErrors) {
       Lox.error(errPdxn.errorPoint, errPdxn.message);
     }
 
@@ -520,16 +528,16 @@ class Parser {
 
   private Expr checkForMissingExpression(Expr expr, String errorMessage) {
     if (expr instanceof Expr.Nothing) {
-      expr = new Expr.ErrorProduction(previous(), errorMessage);
-      this.errorProductions.add((Expr.ErrorProduction) expr);
+      HandledParseError error = new HandledParseError(previous(), errorMessage);
+      this.handledParseErrors.add(error);
     }
     return expr;
   }
 
   private void checkForInvalidToken(TokenType tokenType, Token previous, String message) {
     if (match(tokenType)) {
-      Expr expr = new Expr.ErrorProduction(previous, message);
-      this.errorProductions.add((Expr.ErrorProduction) expr);
+      HandledParseError error = new HandledParseError(previous, message);
+      this.handledParseErrors.add(error);
     }
   }
 

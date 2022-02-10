@@ -480,12 +480,6 @@ class Interpreter implements Expr.Visitor<Object>,
   }
 
   @Override
-  public Object visitErrorProductionExpr(Expr.ErrorProduction expr) {
-    System.out.println(expr.message);
-    return null;
-  }
-
-  @Override
   public Object visitNothingExpr(Expr.Nothing expr) {
     return null;
   }
