@@ -1,1 +1,1 @@
-"s" + nil; // expect runtime error: Operands must be two numbers or include a string.
+"s" + nil; // expect s
