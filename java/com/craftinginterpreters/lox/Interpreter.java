@@ -75,6 +75,7 @@ class Interpreter implements Expr.Visitor<Object>,
       }
       if (evaluated.size() > 0){
         System.out.println(stringify(evaluated.get(evaluated.size() - 1)));
+        evaluated.clear();
       }
     } catch (RuntimeError error) {
       Lox.runtimeError(error);
