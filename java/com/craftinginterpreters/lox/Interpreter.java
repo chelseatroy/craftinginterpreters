@@ -50,7 +50,7 @@ class Interpreter implements Expr.Visitor<Object>,
       public String toString() { return "<native fn>"; }
     });
   }
-  
+
 //< Functions interpreter-constructor
 /* Evaluating Expressions interpret < Statements and State interpret
   void interpret(Expr expression) { // [void]
@@ -223,7 +223,7 @@ class Interpreter implements Expr.Visitor<Object>,
 //> Statements and State visit-var
   @Override
   public Void visitVarStmt(Stmt.Var stmt) {
-    Object value = null;
+    Object value = new UnassignedVariable();
     if (stmt.initializer != null) {
       value = evaluate(stmt.initializer);
     }
@@ -481,10 +481,19 @@ class Interpreter implements Expr.Visitor<Object>,
 //> Resolving and Binding look-up-variable
   private Object lookUpVariable(Token name, Expr expr) {
     Integer distance = locals.get(expr);
+    Object value;
+
     if (distance != null) {
-      return environment.getAt(distance, name.lexeme);
+      value = environment.getAt(distance, name.lexeme);
     } else {
-      return globals.get(name);
+      value = globals.get(name);
+    }
+
+    if (value instanceof UnassignedVariable) {
+      Lox.error(name, "Variable referenced before assignment.");
+      return null;
+    } else {
+        return value;
     }
   }
 //< Resolving and Binding look-up-variable
