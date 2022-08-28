@@ -1,2 +1,3 @@
-// [line 2] Error at '{': Expect expression.
+// [line 3] Error at '{': You can't start a block in a bounded scope. Did you mean to define a variable?
+// [line 3] Error at '}': Expect ')' after for clauses.
 for (var a = 1; a < 2; {}) {}

@@ -13,11 +13,20 @@ import static com.craftinginterpreters.lox.TokenType.*;
 
 class Parser {
 //> parse-error
-  private static class ParseError extends RuntimeException {}
+  private static class UnhandledParseError extends RuntimeException {}
+  private static class HandledParseError {
+    HandledParseError(Token errorPoint, String message) {
+      this.errorPoint = errorPoint;
+      this.message = message;
+    }
+    final Token errorPoint;
+    final String message;
+  }
 
 //< parse-error
   private final List<Token> tokens;
   private int current = 0;
+  private List<HandledParseError> handledParseErrors = new ArrayList();
 
   Parser(List<Token> tokens) {
     this.tokens = tokens;
@@ -43,6 +52,10 @@ class Parser {
 //< parse-declaration
     }
 
+    for (HandledParseError errPdxn: this.handledParseErrors) {
+      Lox.error(errPdxn.errorPoint, errPdxn.message);
+    }
+
     return statements; // [parse-error-handling]
   }
 //< Statements and State parse
@@ -51,6 +64,10 @@ class Parser {
 /* Parsing Expressions expression < Statements and State expression
     return equality();
 */
+    checkForInvalidToken(FUN, peek(), "You can't define a function in a block.");
+    checkForInvalidToken(CLASS, peek(), "You can't define a class in a block.");
+    checkForInvalidToken(VAR, peek(), "You can't declare a variable in a block.");
+    checkForInvalidToken(LEFT_BRACE, peek(), "You can't start a block in a bounded scope. Did you mean to define a variable?");
 //> Statements and State expression
     return assignment();
 //< Statements and State expression
@@ -68,7 +85,7 @@ class Parser {
       if (match(VAR)) return varDeclaration();
 
       return statement();
-    } catch (ParseError error) {
+    } catch (UnhandledParseError error) {
       synchronize();
       return null;
     }
@@ -194,6 +211,10 @@ class Parser {
     Stmt thenBranch = statement();
     Stmt elseBranch = null;
     if (match(ELSE)) {
+      checkForInvalidToken(FUN, peek(), "You can't define a function in a block.");
+      checkForInvalidToken(CLASS, peek(), "You can't define a class in a block.");
+      checkForInvalidToken(VAR, peek(), "You can't declare a variable in a block.");
+
       elseBranch = statement();
     }
 
@@ -203,6 +224,8 @@ class Parser {
 //> Statements and State parse-print-statement
   private Stmt printStatement() {
     Expr value = expression();
+    value = checkForMissingExpression(value, "Ain't nothing to print.");
+
     consume(SEMICOLON, "Expect ';' after value.");
     return new Stmt.Print(value);
   }
@@ -321,6 +344,7 @@ class Parser {
     Expr expr = and();
 
     while (match(OR)) {
+      expr = checkForMissingExpression(expr, "Logical operators must have a left and right operand.");
       Token operator = previous();
       Expr right = and();
       expr = new Expr.Logical(expr, operator, right);
@@ -334,6 +358,7 @@ class Parser {
     Expr expr = equality();
 
     while (match(AND)) {
+      expr = checkForMissingExpression(expr, "Logical operators must have a left and right operand.");
       Token operator = previous();
       Expr right = equality();
       expr = new Expr.Logical(expr, operator, right);
@@ -347,6 +372,8 @@ class Parser {
     Expr expr = comparison();
 
     while (match(BANG_EQUAL, EQUAL_EQUAL)) {
+      expr = checkForMissingExpression(expr, "Comparison operators must have a left and right operand.");
+
       Token operator = previous();
       Expr right = comparison();
       expr = new Expr.Binary(expr, operator, right);
@@ -354,12 +381,15 @@ class Parser {
 
     return expr;
   }
-//< equality
+
+  //< equality
 //> comparison
   private Expr comparison() {
     Expr expr = term();
 
     while (match(GREATER, GREATER_EQUAL, LESS, LESS_EQUAL)) {
+      expr = checkForMissingExpression(expr, "Comparison operators must have a left and right operand.");
+
       Token operator = previous();
       Expr right = term();
       expr = new Expr.Binary(expr, operator, right);
@@ -373,6 +403,7 @@ class Parser {
     Expr expr = factor();
 
     while (match(MINUS, PLUS)) {
+      expr = checkForMissingExpression(expr, "Binary operators must have a left and right operand.");
       Token operator = previous();
       Expr right = factor();
       expr = new Expr.Binary(expr, operator, right);
@@ -386,6 +417,8 @@ class Parser {
     Expr expr = unary();
 
     while (match(SLASH, STAR)) {
+      expr = checkForMissingExpression(expr, "Binary operators must have a left and right operand.");
+
       Token operator = previous();
       Expr right = unary();
       expr = new Expr.Binary(expr, operator, right);
@@ -457,6 +490,8 @@ class Parser {
     if (match(TRUE)) return new Expr.Literal(true);
     if (match(NIL)) return new Expr.Literal(null);
 
+    checkForInvalidToken(DOT, peek(), "Values cannot begin with a dot.");
+
     if (match(NUMBER, STRING)) {
       return new Expr.Literal(previous().literal);
     }
@@ -487,11 +522,26 @@ class Parser {
       return new Expr.Grouping(expr);
     }
 //> primary-error
-
-    throw error(peek(), "Expect expression.");
+    return new Expr.Nothing("Nothing, there's nothing here, nothing");
 //< primary-error
   }
-//< primary
+
+  private Expr checkForMissingExpression(Expr expr, String errorMessage) {
+    if (expr instanceof Expr.Nothing) {
+      HandledParseError error = new HandledParseError(previous(), errorMessage);
+      this.handledParseErrors.add(error);
+    }
+    return expr;
+  }
+
+  private void checkForInvalidToken(TokenType tokenType, Token previous, String message) {
+    if (match(tokenType)) {
+      HandledParseError error = new HandledParseError(previous, message);
+      this.handledParseErrors.add(error);
+    }
+  }
+
+  //< primary
 //> match
   private boolean match(TokenType... types) {
     for (TokenType type : types) {
@@ -537,9 +587,9 @@ class Parser {
   }
 //< utils
 //> error
-  private ParseError error(Token token, String message) {
+  private UnhandledParseError error(Token token, String message) {
     Lox.error(token, message);
-    return new ParseError();
+    return new UnhandledParseError();
   }
 //< error
 //> synchronize
