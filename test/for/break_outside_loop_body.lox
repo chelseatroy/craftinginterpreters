@@ -3,4 +3,4 @@ fun f() {
 }
 
 f();
-// [line 2] Error at 'break': Cannot break outside a for loop.
+// [line 2] Error at 'break': Cannot break outside a loop.
