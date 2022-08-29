@@ -20,6 +20,7 @@ class Interpreter implements Expr.Visitor<Object> {
 //> Statements and State interpreter
 class Interpreter implements Expr.Visitor<Object>,
                              Stmt.Visitor<Void> {
+  private static class BreakException extends RuntimeException {}
 //< Statements and State interpreter
 /* Statements and State environment-field < Functions global-environment
   private Environment environment = new Environment();
@@ -234,9 +235,18 @@ class Interpreter implements Expr.Visitor<Object>,
 //< Statements and State visit-var
 //> Control Flow visit-while
   @Override
+  public Void visitBreakStmt(Stmt.Break stmt) {
+    throw new BreakException();
+  }
+
+  @Override
   public Void visitWhileStmt(Stmt.While stmt) {
-    while (isTruthy(evaluate(stmt.condition))) {
-      execute(stmt.body);
+    try {
+        while (isTruthy(evaluate(stmt.condition))) {
+          execute(stmt.body);
+        }
+    } catch (BreakException ex) {
+      // Nothing happens here
     }
     return null;
   }
