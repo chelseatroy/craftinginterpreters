@@ -83,7 +83,8 @@ public class GenerateAst {
 */
 //> Control Flow while-ast
       "Var        : Token name, Expr initializer",
-      "While      : Expr condition, Stmt body"
+      "While      : Expr condition, Stmt body",
+      "Break      : String ignored"
 //< Control Flow while-ast
     ));
 //< Statements and State stmt-ast
