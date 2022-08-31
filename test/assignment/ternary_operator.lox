@@ -1,0 +1,9 @@
+var one = true ? 1 : 2;
+var two = false ? 1 : 2;
+var three = 6 > 5 ? 3 : 4;
+var four = 5 > 6 ? 3 : 4;
+
+print one; // expect: 1
+print two; // expect: 2
+print three; // expect: 3
+print four; // expect: 4

@@ -208,7 +208,13 @@ class AstPrinter implements Expr.Visitor<String>, Stmt.Visitor<String> {
   public String visitVariableExpr(Expr.Variable expr) {
     return expr.name.lexeme;
   }
-//< Statements and State omit
+
+  @Override
+  public String visitTernaryExpr(Expr.Ternary expr) {
+    return parenthesize("Ternary", expr.condition, expr.trueLeg, expr.falseLeg);
+  }
+
+  //< Statements and State omit
 //< visit-methods
 //> print-utilities
   private String parenthesize(String name, Expr... exprs) {

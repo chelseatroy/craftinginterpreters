@@ -293,7 +293,7 @@ class Parser {
     Expr expr = equality();
 */
 //> Control Flow or-in-assignment
-    Expr expr = or();
+    Expr expr = ternary();
 //< Control Flow or-in-assignment
 
     if (match(EQUAL)) {
@@ -315,7 +315,26 @@ class Parser {
 
     return expr;
   }
-//< Statements and State parse-assignment
+
+  private Expr ternary() {
+    Expr expr = or();
+
+    if (match(QUESTION_MARK)) {
+      Token questionMark = previous();
+      Expr trueLeg = or();
+
+      if (match(COLON)) {
+        Expr falseLeg = or();
+        return new Expr.Ternary(expr, trueLeg, falseLeg);
+      }
+
+      error(questionMark, "Ternary missing a colon-separated true leg and false leg"); // [no-throw]
+    }
+
+    return expr;
+  }
+
+  //< Statements and State parse-assignment
 //> Control Flow or
   private Expr or() {
     Expr expr = and();
