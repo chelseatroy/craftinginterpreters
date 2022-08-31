@@ -293,7 +293,7 @@ class Parser {
     Expr expr = equality();
 */
 //> Control Flow or-in-assignment
-    Expr expr = or();
+    Expr expr = commaOperator();
 //< Control Flow or-in-assignment
 
     if (match(EQUAL)) {
@@ -315,7 +315,20 @@ class Parser {
 
     return expr;
   }
-//< Statements and State parse-assignment
+
+  private Expr commaOperator() {
+    Expr expr = or();
+
+    while (match(COMMA)) {
+      Token operator = previous();
+      Expr right = or();
+      expr = new Expr.CommaCollection(expr, operator, right);
+    }
+
+    return expr;
+  }
+
+  //< Statements and State parse-assignment
 //> Control Flow or
   private Expr or() {
     Expr expr = and();

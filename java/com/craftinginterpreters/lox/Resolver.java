@@ -267,7 +267,15 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     resolve(expr.right);
     return null;
   }
-//< visit-logical-expr
+
+  @Override
+  public Void visitCommaCollectionExpr(Expr.CommaCollection expr) {
+    resolve(expr.left);
+    resolve(expr.right);
+    return null;
+  }
+
+  //< visit-logical-expr
 //> Classes resolver-visit-set
   @Override
   public Void visitSetExpr(Expr.Set expr) {

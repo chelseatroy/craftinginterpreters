@@ -1,0 +1,5 @@
+var = 1, 2;
+
+// When commas separate expressions, comma operators prescribe this behavior:
+// the parser evaluates and discards the first one, then evaluates the second one.
+print a; // expect: 2

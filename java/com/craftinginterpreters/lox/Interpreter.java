@@ -399,7 +399,16 @@ class Interpreter implements Expr.Visitor<Object>,
 
     return evaluate(expr.right);
   }
-//< Control Flow visit-logical
+  //< Control Flow visit-logical
+
+  //> Control Flow visit-comma-collection
+  @Override
+  public Object visitCommaCollectionExpr(Expr.CommaCollection expr) {
+    evaluate(expr.left); //evaluate and discard.
+
+    return evaluate(expr.right);
+  }
+//< Control flow visit-comma-collection
 //> Classes interpreter-visit-set
   @Override
   public Object visitSetExpr(Expr.Set expr) {
