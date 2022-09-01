@@ -63,7 +63,10 @@ class Parser {
       if (match(CLASS)) return classDeclaration();
 //< Classes match-class
 //> Functions match-fun
-      if (match(FUN)) return function("function");
+      if (check(FUN) && checkNext(IDENTIFIER)) {
+        consume(FUN, null);
+        return function("function");
+      }
 //< Functions match-fun
       if (match(VAR)) return varDeclaration();
 
@@ -249,9 +252,13 @@ class Parser {
     return new Stmt.Expression(expr);
   }
 //< Statements and State parse-expression-statement
-//> Functions parse-function
   private Stmt.Function function(String kind) {
     Token name = consume(IDENTIFIER, "Expect " + kind + " name.");
+    return new Stmt.Function(name, functionBody(kind));
+  }
+
+//> Functions parse-function
+  private Expr.Function functionBody(String kind) {
 //> parse-parameters
     consume(LEFT_PAREN, "Expect '(' after " + kind + " name.");
     List<Token> parameters = new ArrayList<>();
@@ -271,7 +278,7 @@ class Parser {
 
     consume(LEFT_BRACE, "Expect '{' before " + kind + " body.");
     List<Stmt> body = block();
-    return new Stmt.Function(name, parameters, body);
+    return new Expr.Function(parameters, body);
 //< parse-body
   }
 //< Functions parse-function
@@ -456,6 +463,7 @@ class Parser {
     if (match(FALSE)) return new Expr.Literal(false);
     if (match(TRUE)) return new Expr.Literal(true);
     if (match(NIL)) return new Expr.Literal(null);
+    if (match(FUN)) return functionBody("function");
 
     if (match(NUMBER, STRING)) {
       return new Expr.Literal(previous().literal);
@@ -515,6 +523,12 @@ class Parser {
   private boolean check(TokenType type) {
     if (isAtEnd()) return false;
     return peek().type == type;
+  }
+
+  private boolean checkNext(TokenType tokenType) {
+    if (isAtEnd()) return false;
+    if (tokens.get(current + 1).type == EOF) return false;
+    return tokens.get(current + 1).type == tokenType;
   }
 //< check
 //> advance

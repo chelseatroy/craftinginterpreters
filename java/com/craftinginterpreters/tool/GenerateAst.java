@@ -21,6 +21,7 @@ public class GenerateAst {
       "Binary   : Expr left, Token operator, Expr right",
 //> Functions call-expr
       "Call     : Expr callee, Token paren, List<Expr> arguments",
+      "Function : List<Token> parameters, List<Stmt> body",
 //< Functions call-expr
 //> Classes get-ast
       "Get      : Expr object, Token name",
@@ -62,8 +63,7 @@ public class GenerateAst {
 //< Inheritance superclass-ast
       "Expression : Expr expression",
 //> Functions function-ast
-      "Function   : Token name, List<Token> params," +
-                  " List<Stmt> body",
+      "Function   : Token name, Expr.Function function",
 //< Functions function-ast
 //> Control Flow if-ast
       "If         : Expr condition, Stmt thenBranch," +

@@ -4,10 +4,10 @@ package com.craftinginterpreters.lox;
 import java.util.List;
 
 class LoxFunction implements LoxCallable {
-  private final Stmt.Function declaration;
+  private final String name;
+  private final Expr.Function declaration;
 //> closure-field
   private final Environment closure;
-  
 //< closure-field
 /* Functions lox-function < Functions closure-constructor
   LoxFunction(Stmt.Function declaration) {
@@ -18,7 +18,7 @@ class LoxFunction implements LoxCallable {
 //> Classes is-initializer-field
   private final boolean isInitializer;
 
-  LoxFunction(Stmt.Function declaration, Environment closure,
+  LoxFunction(String name, Expr.Function declaration, Environment closure,
               boolean isInitializer) {
     this.isInitializer = isInitializer;
 //< Classes is-initializer-field
@@ -26,6 +26,7 @@ class LoxFunction implements LoxCallable {
     this.closure = closure;
 //< closure-constructor
     this.declaration = declaration;
+    this.name = name;
   }
 //> Classes bind-instance
   LoxFunction bind(LoxInstance instance) {
@@ -35,7 +36,7 @@ class LoxFunction implements LoxCallable {
     return new LoxFunction(declaration, environment);
 */
 //> lox-function-bind-with-initializer
-    return new LoxFunction(declaration, environment,
+    return new LoxFunction(name, declaration, environment,
                            isInitializer);
 //< lox-function-bind-with-initializer
   }
@@ -43,13 +44,13 @@ class LoxFunction implements LoxCallable {
 //> function-to-string
   @Override
   public String toString() {
-    return "<fn " + declaration.name.lexeme + ">";
-  }
-//< function-to-string
+    if (name == null) return "<fn>";
+    return "<fn " + name + ">";
+  }//< function-to-string
 //> function-arity
   @Override
   public int arity() {
-    return declaration.params.size();
+    return declaration.parameters.size();
   }
 //< function-arity
 //> function-call
@@ -62,8 +63,8 @@ class LoxFunction implements LoxCallable {
 //> call-closure
     Environment environment = new Environment(closure);
 //< call-closure
-    for (int i = 0; i < declaration.params.size(); i++) {
-      environment.define(declaration.params.get(i).lexeme,
+    for (int i = 0; i < declaration.parameters.size(); i++) {
+      environment.define(declaration.parameters.get(i).lexeme,
           arguments.get(i));
     }
 
