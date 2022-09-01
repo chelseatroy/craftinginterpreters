@@ -103,6 +103,7 @@ class Interpreter implements Expr.Visitor<Object>,
     }
   }
 //< Statements and State execute-block
+
 //> Statements and State visit-block
   @Override
   public Void visitBlockStmt(Stmt.Block stmt) {
@@ -137,10 +138,10 @@ class Interpreter implements Expr.Visitor<Object>,
     Map<String, LoxFunction> methods = new HashMap<>();
     for (Stmt.Function method : stmt.methods) {
 /* Classes interpret-methods < Classes interpreter-method-initializer
-      LoxFunction function = new LoxFunction(method, environment);
+      LoxFunction function = new LoxFunction(method.name.lexeme, method.function, environment);
 */
 //> interpreter-method-initializer
-      LoxFunction function = new LoxFunction(method, environment,
+      LoxFunction function = new LoxFunction(method.name.lexeme, method.function, environment,
           method.name.lexeme.equals("init"));
 //< interpreter-method-initializer
       methods.put(method.name.lexeme, function);
@@ -178,6 +179,8 @@ class Interpreter implements Expr.Visitor<Object>,
 //> Functions visit-function
   @Override
   public Void visitFunctionStmt(Stmt.Function stmt) {
+    String fnName = stmt.name.lexeme;
+
 /* Functions visit-function < Functions visit-closure
     LoxFunction function = new LoxFunction(stmt);
 */
@@ -185,11 +188,16 @@ class Interpreter implements Expr.Visitor<Object>,
     LoxFunction function = new LoxFunction(stmt, environment);
 */
 //> Classes construct-function
-    LoxFunction function = new LoxFunction(stmt, environment,
+    LoxFunction function = new LoxFunction(fnName, stmt.function, environment,
                                            false);
 //< Classes construct-function
     environment.define(stmt.name.lexeme, function);
     return null;
+  }
+
+  @Override
+  public Object visitFunctionExpr(Expr.Function expr) {
+      return new LoxFunction(null, expr, environment, false);
   }
 //< Functions visit-function
 //> Control Flow visit-if

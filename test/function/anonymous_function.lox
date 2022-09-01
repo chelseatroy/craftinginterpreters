@@ -8,6 +8,6 @@ thrice(fun (a) {
   print a;
 });
 
-// expect: "1"
-// expect: "2"
-// expect: "3"
+// expect: 1
+// expect: 2
+// expect: 3

@@ -114,7 +114,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
       }
 
 //< resolver-initializer-type
-      resolveFunction(method, declaration); // [local]
+      resolveFunction(method.function, declaration); // [local]
     }
 
 //> resolver-end-this-scope
@@ -144,14 +144,19 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
   public Void visitFunctionStmt(Stmt.Function stmt) {
     declare(stmt.name);
     define(stmt.name);
-
-/* Resolving and Binding visit-function-stmt < Resolving and Binding pass-function-type
-    resolveFunction(stmt);
-*/
-//> pass-function-type
-    resolveFunction(stmt, FunctionType.FUNCTION);
-//< pass-function-type
+    visitFunctionExpr(stmt.function);
     return null;
+  }
+
+  @Override
+   public Void visitFunctionExpr(Expr.Function fnExpr) {
+  /* Resolving and Binding visit-function-stmt < Resolving and Binding pass-function-type
+      resolveFunction(fnExpr);
+  */
+  //> pass-function-type
+      resolveFunction(fnExpr, FunctionType.FUNCTION);
+  //< pass-function-type
+      return null;
   }
 //< visit-function-stmt
 //> visit-if-stmt
@@ -341,17 +346,17 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 //< resolve-expr
 //> resolve-function
 /* Resolving and Binding resolve-function < Resolving and Binding set-current-function
-  private void resolveFunction(Stmt.Function function) {
+  private void resolveFunction(Expr.Function function) {
 */
 //> set-current-function
   private void resolveFunction(
-      Stmt.Function function, FunctionType type) {
+      Expr.Function function, FunctionType type) {
     FunctionType enclosingFunction = currentFunction;
     currentFunction = type;
 
 //< set-current-function
     beginScope();
-    for (Token param : function.params) {
+    for (Token param : function.parameters) {
       declare(param);
       define(param);
     }
