@@ -1,2 +1,3 @@
 var a;
+// [line 3] Error at 'a': Variable referenced before assignment.
 print a; // expect: nil
