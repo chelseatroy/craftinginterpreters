@@ -32,7 +32,12 @@ class Interpreter implements Expr.Visitor<Object>,
   private final Map<Expr, Integer> locals = new HashMap<>();
 //< Resolving and Binding locals-field
 //> Statements and State environment-field
+  private boolean inRepl = false;
+  private List<Object> evaluated = new ArrayList();
 
+  void setInRepl(boolean value) {
+    inRepl = value;
+  }
 //< Statements and State environment-field
 //> Functions interpreter-constructor
   Interpreter() {
@@ -68,6 +73,10 @@ class Interpreter implements Expr.Visitor<Object>,
       for (Stmt statement : statements) {
         execute(statement);
       }
+      if (evaluated.size() > 0){
+        System.out.println(stringify(evaluated.get(evaluated.size() - 1)));
+        evaluated.clear();
+      }
     } catch (RuntimeError error) {
       Lox.runtimeError(error);
     }
@@ -75,7 +84,11 @@ class Interpreter implements Expr.Visitor<Object>,
 //< Statements and State interpret
 //> evaluate
   private Object evaluate(Expr expr) {
-    return expr.accept(this);
+    Object value = expr.accept(this);
+    if (inRepl) {
+      evaluated.add(value);
+    }
+    return value;
   }
 //< evaluate
 //> Statements and State execute
