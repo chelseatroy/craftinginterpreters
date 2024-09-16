@@ -305,8 +305,11 @@ class Interpreter implements Expr.Visitor<Object>,
           return (double)left + (double)right;
         } // [plus]
 
-        if (left instanceof String && right instanceof String) {
-          return (String)left + (String)right;
+        if (left instanceof String || right instanceof String) {
+          if (left == null) { left = "";}
+          if (right == null) { right = "";}
+          //  String replace hack: I don't think we're distinguishing integers and doubles at the Lox interpreter level
+          return left.toString().replace(".0", "") + right.toString().replace(".0", "");
         }
 
 /* Evaluating Expressions binary-plus < Evaluating Expressions string-wrong-type
@@ -314,7 +317,7 @@ class Interpreter implements Expr.Visitor<Object>,
 */
 //> string-wrong-type
         throw new RuntimeError(expr.operator,
-            "Operands must be two numbers or two strings.");
+            "Operands must be two numbers or include a string.");
 //< string-wrong-type
 //< binary-plus
       case SLASH:
